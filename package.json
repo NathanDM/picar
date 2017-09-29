@@ -1,0 +1,12 @@
+{
+  "name": "picar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./client/build/dev-server.js",
+    "serve": "node server/index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
