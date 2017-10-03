@@ -2,33 +2,13 @@ const shipModels = [
   {
     width: 120,
     height: 125,
-    url: './static/ship1.png',
-  },
-  {
-    width: 120,
-    height: 125,
     url: './static/onlyship-4x.png',
-  },
-  {
-    width: 130,
-    height: 140,
-    url: './static/ship2.png',
-  },
-  {
-    width: 110,
-    height: 150,
-    url: './static/ship3.png',
-  },
-  {
-    width: 140,
-    height: 110,
-    url: './static/ship4.png',
   },
 ];
 
 export default class Player {
   constructor(x, y, limitX, limitY) {
-    const shipModel = shipModels[1];
+    const shipModel = shipModels[0];
     this.x = x;
     this.y = y;
     this.width = shipModel.width;
@@ -74,13 +54,9 @@ export default class Player {
 
   drawShip(ctx) {
     if (this.ship.isLoaded) {
-      ctx.drawImage(
-        this.ship,
+      ctx.drawImage(this.ship,
         (this.ship.width / 5) * this.getSprite(), 0, this.ship.width / 5, this.ship.height,
         this.x, this.y, this.width, this.height);
-        // this.ship,
-        // 0, 0, this.ship.width, this.ship.height,
-        // this.x, this.y, this.width, this.height);
     }
   }
 
@@ -109,12 +85,13 @@ export default class Player {
     if (this.xSpeed === 0) {
       return 2;
     }
-    if (this.xSpeed > 0) {
-      return 3;
-    }
     if (this.xSpeed > 2.5) {
       return 4;
     }
+    if (this.xSpeed > 0) {
+      return 3;
+    }
+
     return 2;
   }
 }

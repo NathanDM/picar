@@ -1,7 +1,7 @@
 {
-  "name": "reactivity",
-  "version": "1.0.0",
-  "description": "Web application to manage the activity that matters",
+  "name": "piCar",
+  "version": "0.0.1",
+  "description": "Client To Manage Everything",
   "author": "nathandm <nathan.damie@gmail.com>",
   "private": true,
   "scripts": {

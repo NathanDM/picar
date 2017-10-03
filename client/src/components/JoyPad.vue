@@ -1,5 +1,5 @@
 <template>
-  <div class="joyPad" ref="joyPad" :style="positions">
+  <div class="joyPad" ref="joyPad" :style="activeStyle">
     <div class="joyPad-box" ref="joyPadBox">
       <div class="stick" ref="stick">
 
@@ -9,13 +9,41 @@
 </template>
 
 <script>
+  const defaultLimit = 25;
+
+  const defaultStyle = {
+    width: '100px',
+    height: '100px',
+    right: '10px',
+    bottom: '10px',
+  };
+
   export default {
     name: 'JoyPad',
 
     props: {
-      positions: {
-        bottom: String,
-        right: String,
+      xMin: {
+        type: Number,
+        default: -defaultLimit,
+      },
+      xMax: {
+        type: Number,
+        default: defaultLimit,
+      },
+      yMin: {
+        type: Number,
+        default: -defaultLimit,
+      },
+      yMax: {
+        type: Number,
+        default: defaultLimit,
+      },
+      customStyle: Object,
+    },
+
+    watch: {
+      customStyle(value) {
+        this.activeStyle = { ...defaultStyle, ...value };
       },
     },
 
@@ -23,6 +51,7 @@
       isMoving: false,
       xSpeed: 0,
       ySpeed: 0,
+      activeStyle: defaultStyle,
     }),
 
     mounted() {
@@ -34,38 +63,56 @@
         if (!this.isMoving) {
           return;
         }
-
         const stick = this.$refs.stick;
         const joyPadBox = this.$refs.joyPad;
         const xMousePositionOnElement = event.layerX;
         const yMousePositionOnElement = event.layerY;
+        const stickHalfWidth = stick.clientWidth / 2;
+        const stickHalfHeight = stick.clientHeight / 2;
 
+        let xMouseMove;
+        let yMouseMove;
         let newXStickPosition;
         let newYStickPosition;
 
-        // If Mouse is outside the stick
         if (event.target.className === 'joyPad-box') {
-          newXStickPosition = xMousePositionOnElement - 25;
-          newYStickPosition = yMousePositionOnElement - 25;
+          // If Mouse is outside the stick
+          // Put the stick under the mouse
+          newXStickPosition = xMousePositionOnElement - stickHalfWidth;
+          newYStickPosition = yMousePositionOnElement - stickHalfHeight;
         } else if (event.target.className === 'stick') {
+          // If Mouse under Stick
           // Movement on x & y
-          const xMouseMove = xMousePositionOnElement - this.initialXPositionOnStick;
-          const yMouseMove = yMousePositionOnElement - this.initialYPositionOnStick;
+          xMouseMove = xMousePositionOnElement - this.initialXPositionOnStick;
+          yMouseMove = yMousePositionOnElement - this.initialYPositionOnStick;
 
           // Update stick's position
           newXStickPosition = stick.offsetLeft + xMouseMove;
           newYStickPosition = stick.offsetTop + yMouseMove;
         } else {
-          return;
+          // Get joyPad positions on screen
+          const joyPadLeft = joyPadBox.getBoundingClientRect().left;
+          const joyPadTop = joyPadBox.getBoundingClientRect().top;
+
+          // Movement on x & y take care of joyPad position on screen
+          xMouseMove = (event.clientX - joyPadLeft) - stickHalfWidth;
+          yMouseMove = (event.clientY - joyPadTop) - stickHalfHeight;
+
+          newXStickPosition = xMouseMove;
+          newYStickPosition = yMouseMove;
         }
 
         // Keep the stick in the box
-        if (newXStickPosition >= -25 && newXStickPosition <= joyPadBox.offsetWidth - 25) {
-          this.xSpeed = (newXStickPosition - 25) / 2.5;
+        if (newXStickPosition >= -stickHalfWidth &&
+          newXStickPosition <= joyPadBox.offsetWidth - stickHalfWidth) {
+          // Manage linear acceleration
+          this.xSpeed = (newXStickPosition - stickHalfWidth) / 2.5;
           stick.style.left = `${newXStickPosition}px`;
         }
-        if (newYStickPosition >= -25 && newYStickPosition <= joyPadBox.offsetHeight - 25) {
-          this.ySpeed = (newYStickPosition - 25) / 2.5;
+        if (newYStickPosition >= -stickHalfHeight &&
+          newYStickPosition <= joyPadBox.offsetHeight - stickHalfHeight) {
+          // Manage linear acceleration
+          this.ySpeed = (newYStickPosition - stickHalfHeight) / 2.5;
           stick.style.top = `${newYStickPosition}px`;
         }
 
@@ -74,7 +121,7 @@
 
       bindJoyPad() {
         const stick = this.$refs.stick;
-        const joyPadBox = this.$refs.joyPadBox;
+//        const joyPadBox = this.$refs.joyPadBox;
 
         stick.addEventListener('mousedown', (event) => {
           this.isMoving = true;
@@ -83,13 +130,13 @@
         });
         document.addEventListener('mouseup', () => {
           this.isMoving = false;
-          stick.style.left = '25px';
-          stick.style.top = '25px';
+          stick.style.left = '25%';
+          stick.style.top = '25%';
           this.xSpeed = 0;
           this.ySpeed = 0;
           this.$emit('move', this.xSpeed, this.ySpeed);
         });
-        joyPadBox.addEventListener('mousemove', this.moveStick);
+        document.addEventListener('mousemove', this.moveStick);
       },
     },
   };
@@ -97,13 +144,9 @@
 
 <style lang="stylus">
   .joyPad
-    width: 100px
-    height: 100px
     position: absolute
     border-radius: 50%
     border: solid 1px black
-    bottom: 10px
-    right: 10px
 
     .joyPad-box
       width: 100%
@@ -111,10 +154,10 @@
 
       .stick
         background-color: gray
-        width: 50px
-        height: 50px
+        width: 50%
+        height: 50%
         border-radius: 50%
         position: absolute
-        bottom: 25px
-        right: 25px
+        top: 25%
+        left: 25%
 </style>

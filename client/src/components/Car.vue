@@ -9,7 +9,7 @@
         <joy-pad @move="this.player1.setSpeed"></joy-pad>
 
         <!--Player 2 controller-->
-        <joy-pad :positions="{ bottom : '10px', left: '10px'}" @move="this.player2.setSpeed"></joy-pad>
+        <joy-pad :customStyle="{ bottom : '10px', left: '10px'}" @move="this.player2.setSpeed"></joy-pad>
 
         <!--Player 1 optional controller-->
         <key-board @move="this.player1.setSpeed" @action1="this.player1.fire"></key-board>
@@ -31,7 +31,7 @@
   import Player from './Player';
 
   export default {
-    name: 'home',
+    name: 'car',
     components: { JoyPad, KeyBoard },
     data: () => ({
       show: false,
