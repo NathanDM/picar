@@ -121,7 +121,6 @@
 
       bindJoyPad() {
         const stick = this.$refs.stick;
-//        const joyPadBox = this.$refs.joyPadBox;
 
         stick.addEventListener('mousedown', (event) => {
           this.isMoving = true;

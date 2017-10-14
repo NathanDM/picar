@@ -5,19 +5,37 @@ const http = require('http');
 // create the server
 const server = http.createServer();
 
+let users = [];
+
+function broadcast(message) {
+  users.forEach((userConnection) => {
+    userConnection.send(message);
+  });
+}
+
+function registerUser(userConnection) {
+  users.push(userConnection);
+}
+
+function unregisterUser(userConnection) {
+  // users.split(userConnection);
+}
+
 // WebSocket server
 const wsServer = new WebSocketServer({ httpServer: server });
-wsServer.on('request', function(request) {
-    const connection = request.accept(null, request.origin);
+wsServer.on('request', (request) => {
+  const connection = request.accept(null, request.origin);
+  registerUser(connection);
+  console.log('new client  : ', connection);
 
-    connection.on('message', function(message) {
-        if (message.type === 'utf8') {
-            console.log('message  : ', message);
-        }
-    });
-    connection.on('close', function(connection) {
-        console.log('see you');
-    });
+  connection.on('message', (message) => {
+    broadcast(message.utf8Data);
+  });
+  connection.on('close', (closeRequest) => {
+    unregisterUser(closeRequest);
+    console.log('see you', closeRequest);
+  });
 });
+
 
 server.listen(3000);
